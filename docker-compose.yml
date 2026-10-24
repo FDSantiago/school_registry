@@ -1,5 +1,7 @@
 # Runs the API and its MySQL database. Keys are read from .env (copy .env.example).
 #   docker compose up --build
+# Every setting can also come from the environment (e.g. Dokploy writes its variables to .env).
+# Set DATABASE_URL to use an external database instead of the bundled mysql service.
 services:
   api:
     build: .
@@ -8,7 +10,7 @@ services:
       - "${API_HOST_PORT:-4000}:4000"
     environment:
       PORT: 4000
-      DATABASE_URL: mysql://registry:registry@mysql:3306/school_registry?sslmode=require
+      DATABASE_URL: ${DATABASE_URL:-mysql://registry:registry@mysql:3306/school_registry?sslmode=require}
       REGISTRY_READ_KEY: ${REGISTRY_READ_KEY:?Set REGISTRY_READ_KEY in .env}
       REGISTRY_ADMIN_KEY: ${REGISTRY_ADMIN_KEY:?Set REGISTRY_ADMIN_KEY in .env}
       RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-60}

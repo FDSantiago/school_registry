@@ -13,7 +13,9 @@ if (applied.length > 0) console.log(JSON.stringify({ level: "info", msg: "migrat
 const app = createApp({ db: sql, config });
 
 const server = Bun.serve({ port: config.port, fetch: app.fetch });
-console.log(JSON.stringify({ level: "info", msg: "server started", port: server.port }));
+// Shows which database is in use (host and name only, never the user or password) to help debug deployments.
+const db = new URL(config.databaseUrl);
+console.log(JSON.stringify({ level: "info", msg: "server started", port: server.port, database: `${db.host}${db.pathname}` }));
 
 // docker stop sends SIGTERM: finish open requests, close the database pool, then exit.
 process.on("SIGTERM", async () => {
