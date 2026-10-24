@@ -4,7 +4,7 @@ A small student/section registry exposed as a REST API (JSON, plus XML for secti
 It is **System 2** in the CIT 305 Systems Integration and Architecture final project (TIP Manila): another team's
 application calls it over HTTP as an external consumer.
 
-Stack: Bun 1.4, TypeScript, Hono, MySQL 8.4 (via Bun's built-in `Bun.SQL`), zod, `bun test`, Docker Compose.
+Stack: Bun 1.4, TypeScript, Hono, MySQL 8.4 or MariaDB 11 (tested on 11.8) (via Bun's built-in `Bun.SQL`), zod, `bun test`, Docker Compose.
 
 > This README is a skeleton. Sections marked _(coming)_ are filled in as the project is built.
 
@@ -29,7 +29,7 @@ curl http://localhost:4000/health
 | Variable | Required | Default | Purpose |
 |---|---|---|---|
 | `PORT` | no | `4000` | HTTP port |
-| `DATABASE_URL` | yes | | MySQL connection URL (`?sslmode=require`) |
+| `DATABASE_URL` | yes | | `mysql://` or `mariadb://` URL ending in the database name, e.g. `mysql://user:pass@host:3306/school_registry?sslmode=require` |
 | `TEST_DATABASE_URL` | for tests | | Separate database used by `bun test` |
 | `REGISTRY_READ_KEY` | yes | | API key for GET endpoints (16+ chars) |
 | `REGISTRY_ADMIN_KEY` | yes | | API key for all endpoints (16+ chars, different from the read key) |

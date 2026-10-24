@@ -9,7 +9,8 @@ depend on any other project.
 
 ## Stack
 
-Bun 1.4 (runtime, test runner, `Bun.SQL` MySQL client), TypeScript, Hono, zod, MySQL 8.4, Docker Compose. No frontend.
+Bun 1.4 (runtime, test runner, `Bun.SQL` MySQL client), TypeScript, Hono, zod, MySQL 8.4 (dev) or MariaDB 11 (tested on 11.8; the production deployment on Dokploy uses MariaDB), Docker Compose. No frontend.
+SQL must work on both MySQL and MariaDB (the test suite has been run on both).
 
 ## Where commands run
 
@@ -20,6 +21,7 @@ docker exec -u bun -w /workspaces/sia_school-registry sia_school-registry_devcon
 ```
 
 MySQL 8.4 requires `?sslmode=require` on connection URLs (otherwise login fails with ERR_MYSQL_PUBLIC_KEY_RETRIEVAL_NOT_ALLOWED).
+The URL must include the database name; config.ts rejects URLs without one.
 
 ## Commands
 

@@ -14,6 +14,18 @@ describe("loadConfig", () => {
     expect(c.rateLimitPerMinute).toBe(60);
   });
 
+  it("accepts mysql:// and mariadb:// URLs", () => {
+    expect(loadConfig({ ...valid, DATABASE_URL: "mariadb://u:p@db:3306/school_registry" }).databaseUrl).toBe(
+      "mariadb://u:p@db:3306/school_registry",
+    );
+  });
+
+  it("rejects a DATABASE_URL without a database name (or the mysql system database)", () => {
+    for (const url of ["mysql://u:p@db:3306", "mysql://u:p@db:3306/", "mariadb://u:p@db:3306/mysql?sslmode=require"]) {
+      expect(() => loadConfig({ ...valid, DATABASE_URL: url })).toThrow("must end with the database name");
+    }
+  });
+
   it("rejects identical read and admin keys", () => {
     expect(() => loadConfig({ ...valid, REGISTRY_ADMIN_KEY: valid.REGISTRY_READ_KEY })).toThrow(
       "must be different",
