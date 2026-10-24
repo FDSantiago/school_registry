@@ -1,0 +1,13 @@
+# deps
+node_modules/
+
+# build output
+dist/
+
+# local secrets (.env.example is committed)
+.env
+.env.*
+!.env.example
+
+# logs
+*.log

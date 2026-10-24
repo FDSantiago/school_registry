@@ -1,0 +1,23 @@
+{
+  "name": "school-registry",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "School Registry: a student/section REST API (System 2, CIT 305 Systems Integration and Architecture).",
+  "scripts": {
+    "dev": "bun --hot src/index.ts",
+    "build": "tsc --noEmit",
+    "start": "bun src/index.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "seed": "bun src/db/seed.ts"
+  },
+  "dependencies": {
+    "hono": "^4.13.13",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/bun": "1.4.4",
+    "typescript": "^7.0.2"
+  }
+}

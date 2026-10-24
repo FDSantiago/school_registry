@@ -1,0 +1,28 @@
+{
+  "name": "school-registry (Bun + MySQL)",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/sia_school-registry",
+  "shutdownAction": "stopCompose",
+  "remoteUser": "bun",
+  "forwardPorts": [4000],
+  "portsAttributes": {
+    "4000": { "label": "School Registry API" }
+  },
+  "postCreateCommand": "cp -n .env.example .env; bun install",
+  "customizations": {
+    "vscode": {
+      "extensions": ["oven.bun-vscode", "redhat.vscode-yaml", "anthropic.claude-code"]
+    }
+  },
+
+  "mounts": [
+    "source=${localEnv:HOME}/.claude,target=/home/vscode/.claude,type=bind",
+    "source=${localEnv:HOME}/.claude.json,target=/home/vscode/.claude.json,type=bind"
+  ],
+
+  "containerEnv": {
+    "CLAUDE_CONFIG_DIR": "/home/vscode/.claude"
+  }
+
+}
