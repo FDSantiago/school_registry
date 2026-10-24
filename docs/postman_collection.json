@@ -1,0 +1,2280 @@
+{
+  "info": {
+    "name": "School Registry API",
+    "description": "System 2 of the CIT 305 integration project. Select the \"School Registry (local)\" environment, run `bun run seed`, then run the whole collection in order. Examples were recorded from a real run (`bun run docs`).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Setup",
+      "item": [
+        {
+          "name": "Setup: remove leftover demo student (204 or 404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 204 or 404\", () => pm.expect(pm.response.code).to.be.oneOf([204, 404]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{adminKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/2026-00999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "2026-00999"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Body has the expected fields\", () => {",
+                  "  const b = pm.response.json();",
+                  "  pm.expect(b).to.have.all.keys([\"status\",\"version\",\"time\"]);",
+                  "  pm.expect(b.status).to.eql(\"ok\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK (health)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/health",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "health"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"ok\",\n  \"version\": \"1.0.0\",\n  \"time\": \"2026-10-24T02:35:02.576Z\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Students",
+      "item": [
+        {
+          "name": "Get student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Body has the expected fields\", () => {",
+                  "  const b = pm.response.json();",
+                  "  pm.expect(b).to.have.all.keys([\"student_id\",\"first_name\",\"last_name\",\"course\",\"year_level\",\"section\",\"status\",\"created_at\",\"updated_at\"]);",
+                  "  pm.expect(b.student_id).to.eql(\"2024-00309\");",
+                  "  pm.expect(b.status).to.eql(\"Active\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{readKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/2024-00309",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "2024-00309"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK (get_student)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{readKey}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/students/2024-00309",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "students",
+                    "2024-00309"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"student_id\": \"2024-00309\",\n  \"first_name\": \"Ana Maria\",\n  \"last_name\": \"O'Reilly\",\n  \"course\": \"BSIT\",\n  \"year_level\": 3,\n  \"section\": \"IT3A\",\n  \"status\": \"Active\",\n  \"created_at\": \"2026-10-24T02:35:02.570Z\",\n  \"updated_at\": \"2026-10-24T02:35:02.570Z\"\n}"
+            },
+            {
+              "name": "429 Too Many Requests (rate_limited)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{readKey}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/students/2024-00309",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "students",
+                    "2024-00309"
+                  ]
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "retry-after",
+                  "value": "60"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"RATE_LIMITED\",\n    \"message\": \"Too many requests: the limit is 60 per minute\",\n    \"details\": {\n      \"retry_after_seconds\": 60\n    }\n  }\n}"
+            },
+            {
+              "name": "500 Internal Server Error (internal_error)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{readKey}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/students/2024-00309",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "students",
+                    "2024-00309"
+                  ]
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"INTERNAL_ERROR\",\n    \"message\": \"An unexpected error occurred. Quote the request id when reporting it.\",\n    \"details\": {\n      \"request_id\": \"31d1125f-fc5c-47c2-a898-21b78a8ba327\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get student (graduated, still returned)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Body has the expected fields\", () => {",
+                  "  const b = pm.response.json();",
+                  "  pm.expect(b).to.have.all.keys([\"student_id\",\"first_name\",\"last_name\",\"course\",\"year_level\",\"section\",\"status\",\"created_at\",\"updated_at\"]);",
+                  "  pm.expect(b.student_id).to.eql(\"2023-00501\");",
+                  "  pm.expect(b.status).to.eql(\"Graduated\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{readKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/2023-00501",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "2023-00501"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK (get_student_graduated)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{readKey}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/students/2023-00501",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "students",
+                    "2023-00501"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"student_id\": \"2023-00501\",\n  \"first_name\": \"Joaquin\",\n  \"last_name\": \"Tolentino\",\n  \"course\": \"BSCS\",\n  \"year_level\": 4,\n  \"section\": \"CS4A\",\n  \"status\": \"Graduated\",\n  \"created_at\": \"2026-10-24T02:35:02.570Z\",\n  \"updated_at\": \"2026-10-24T02:35:02.570Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get student - 404 not found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Error shape with code STUDENT_NOT_FOUND\", () => {",
+                  "  const e = pm.response.json().error;",
+                  "  pm.expect(e).to.have.all.keys([\"code\",\"message\"]);",
+                  "  pm.expect(e.code).to.eql(\"STUDENT_NOT_FOUND\");",
+                  "  pm.expect(e.message).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{readKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/2026-99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "2026-99999"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "404 Not Found (get_student_not_found)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{readKey}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/students/2026-99999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "students",
+                    "2026-99999"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"STUDENT_NOT_FOUND\",\n    \"message\": \"No student with id 2026-99999\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auth errors",
+      "item": [
+        {
+          "name": "Get student - 401 missing key",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Error shape with code UNAUTHORIZED\", () => {",
+                  "  const e = pm.response.json().error;",
+                  "  pm.expect(e).to.have.all.keys([\"code\",\"message\"]);",
+                  "  pm.expect(e.code).to.eql(\"UNAUTHORIZED\");",
+                  "  pm.expect(e.message).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/2024-00309",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "2024-00309"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "401 Unauthorized (missing_api_key)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/students/2024-00309",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "students",
+                    "2024-00309"
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHORIZED\",\n    \"message\": \"Missing X-API-Key header\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get student - 401 invalid key",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Error shape with code UNAUTHORIZED\", () => {",
+                  "  const e = pm.response.json().error;",
+                  "  pm.expect(e).to.have.all.keys([\"code\",\"message\"]);",
+                  "  pm.expect(e.code).to.eql(\"UNAUTHORIZED\");",
+                  "  pm.expect(e.message).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "not-a-real-key-0000000000"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/2024-00309",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "2024-00309"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "401 Unauthorized (invalid_api_key)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "not-a-real-key-0000000000"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/students/2024-00309",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "students",
+                    "2024-00309"
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHORIZED\",\n    \"message\": \"Invalid API key\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create student - 403 read key",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Error shape with code FORBIDDEN\", () => {",
+                  "  const e = pm.response.json().error;",
+                  "  pm.expect(e).to.have.all.keys([\"code\",\"message\"]);",
+                  "  pm.expect(e.code).to.eql(\"FORBIDDEN\");",
+                  "  pm.expect(e.message).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{readKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_id\": \"2026-00999\",\n  \"first_name\": \"Demo\",\n  \"last_name\": \"Student\",\n  \"course\": \"BSIT\",\n  \"year_level\": 1,\n  \"section\": \"IT1A\",\n  \"status\": \"Active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "403 Forbidden (create_student_read_key)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{readKey}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"student_id\": \"2026-00999\",\n  \"first_name\": \"Demo\",\n  \"last_name\": \"Student\",\n  \"course\": \"BSIT\",\n  \"year_level\": 1,\n  \"section\": \"IT1A\",\n  \"status\": \"Active\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/students",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "students"
+                  ]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"FORBIDDEN\",\n    \"message\": \"This endpoint requires the admin API key\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Unknown route - 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Error shape with code NOT_FOUND\", () => {",
+                  "  const e = pm.response.json().error;",
+                  "  pm.expect(e).to.have.all.keys([\"code\",\"message\"]);",
+                  "  pm.expect(e.code).to.eql(\"NOT_FOUND\");",
+                  "  pm.expect(e.message).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{readKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/teachers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "teachers"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "404 Not Found (route_not_found)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{readKey}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/teachers",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "teachers"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"NOT_FOUND\",\n    \"message\": \"No route for GET /api/v1/teachers\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Sections",
+      "item": [
+        {
+          "name": "Section roster (JSON)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Body has the expected fields\", () => {",
+                  "  const b = pm.response.json();",
+                  "  pm.expect(b).to.have.all.keys([\"section\",\"count\",\"students\"]);",
+                  "  pm.expect(b.section).to.eql(\"IT3A\");",
+                  "  pm.expect(b.students).to.be.an(\"array\").with.lengthOf(b.count);",
+                  "  b.students.forEach((s) => pm.expect(s).to.have.all.keys([\"student_id\",\"first_name\",\"last_name\",\"course\",\"year_level\",\"section\",\"status\",\"created_at\",\"updated_at\"]));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{readKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sections/IT3A/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sections",
+                "IT3A",
+                "students"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK (roster)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{readKey}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/sections/IT3A/students",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "sections",
+                    "IT3A",
+                    "students"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"section\": \"IT3A\",\n  \"count\": 9,\n  \"students\": [\n    {\n      \"student_id\": \"2024-00301\",\n      \"first_name\": \"Sofia\",\n      \"last_name\": \"Dela Cruz\",\n      \"course\": \"BSIT\",\n      \"year_level\": 3,\n      \"section\": \"IT3A\",\n      \"status\": \"Active\",\n      \"created_at\": \"2026-10-24T02:35:02.569Z\",\n      \"updated_at\": \"2026-10-24T02:35:02.569Z\"\n    },\n    {\n      \"student_id\": \"2024-00303\",\n      \"first_name\": \"Ursula\",\n      \"last_name\": \"Fernandez\",\n      \"course\": \"BSIT\",\n      \"year_level\": 3,\n      \"section\": \"IT3A\",\n      \"status\": \"Active\",\n      \"created_at\": \"2026-10-24T02:35:02.569Z\",\n      \"updated_at\": \"2026-10-24T02:35:02.569Z\"\n    },\n    {\n      \"student_id\": \"2024-00302\",\n      \"first_name\": \"Tomas\",\n      \"last_name\": \"Garcia\",\n      \"course\": \"BSIT\",\n      \"year_level\": 3,\n      \"section\": \"IT3A\",\n      \"status\": \"Active\",\n      \"created_at\": \"2026-10-24T02:35:02.569Z\",\n      \"updated_at\": \"2026-10-24T02:35:02.569Z\"\n    },\n    {\n      \"student_id\": \"2024-00306\",\n      \"first_name\": \"Xavier\",\n      \"last_name\": \"Lopez\",\n      \"course\": \"BSIT\",\n      \"year_level\": 3,\n      \"section\": \"IT3A\",\n      \"status\": \"Active\",\n      \"created_at\": \"2026-10-24T02:35:02.570Z\",\n      \"updated_at\": \"2026-10-24T02:35:02.570Z\"\n    },\n    {\n      \"student_id\": \"2024-00308\",\n      \"first_name\": \"Zack\",\n      \"last_name\": \"Manalo\",\n      \"course\": \"BSIT\",\n      \"year_level\": 3,\n      \"section\": \"IT3A\",\n      \"status\": \"Active\",\n      \"created_at\": \"2026-10-24T02:35:02.570Z\",\n      \"updated_at\": \"2026-10-24T02:35:02.570Z\"\n    },\n    {\n      \"student_id\": \"2024-00305\",\n      \"first_name\": \"Wendy\",\n      \"last_name\": \"Morales\",\n      \"course\": \"BSIT\",\n      \"year_level\": 3,\n      \"section\": \"IT3A\",\n      \"status\": \"Active\",\n      \"created_at\": \"2026-10-24T02:35:02.569Z\",\n      \"updated_at\": \"2026-10-24T02:35:02.569Z\"\n    },\n    {\n      \"student_id\": \"2024-00309\",\n      \"first_name\": \"Ana Maria\",\n      \"last_name\": \"O'Reilly\",\n      \"course\": \"BSIT\",\n      \"year_level\": 3,\n      \"section\": \"IT3A\",\n      \"status\": \"Active\",\n      \"created_at\": \"2026-10-24T02:35:02.570Z\",\n      \"updated_at\": \"2026-10-24T02:35:02.570Z\"\n    },\n    {\n      \"student_id\": \"2024-00304\",\n      \"first_name\": \"Victor\",\n      \"last_name\": \"Pascual\",\n      \"course\": \"BSIT\",\n      \"year_level\": 3,\n      \"section\": \"IT3A\",\n      \"status\": \"Active\",\n      \"created_at\": \"2026-10-24T02:35:02.569Z\",\n      \"updated_at\": \"2026-10-24T02:35:02.569Z\"\n    },\n    {\n      \"student_id\": \"2024-00307\",\n      \"first_name\": \"Yna\",\n      \"last_name\": \"Rivera\",\n      \"course\": \"BSIT\",\n      \"year_level\": 3,\n      \"section\": \"IT3A\",\n      \"status\": \"Active\",\n      \"created_at\": \"2026-10-24T02:35:02.570Z\",\n      \"updated_at\": \"2026-10-24T02:35:02.570Z\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Section roster - status filter, any-case section",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Body has the expected fields\", () => {",
+                  "  const b = pm.response.json();",
+                  "  pm.expect(b).to.have.all.keys([\"section\",\"count\",\"students\"]);",
+                  "  pm.expect(b.section).to.eql(\"IT1A\");",
+                  "  pm.expect(b.students).to.be.an(\"array\").with.lengthOf(b.count);",
+                  "  b.students.forEach((s) => pm.expect(s).to.have.all.keys([\"student_id\",\"first_name\",\"last_name\",\"course\",\"year_level\",\"section\",\"status\",\"created_at\",\"updated_at\"]));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{readKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sections/it1a/students?status=Inactive",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sections",
+                "it1a",
+                "students"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "Inactive"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK (roster_status_filter)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{readKey}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/sections/it1a/students?status=Inactive",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "sections",
+                    "it1a",
+                    "students"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "Inactive"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"section\": \"IT1A\",\n  \"count\": 1,\n  \"students\": [\n    {\n      \"student_id\": \"2026-00109\",\n      \"first_name\": \"Ivan\",\n      \"last_name\": \"Castillo\",\n      \"course\": \"BSIT\",\n      \"year_level\": 1,\n      \"section\": \"IT1A\",\n      \"status\": \"Inactive\",\n      \"created_at\": \"2026-10-24T02:35:02.569Z\",\n      \"updated_at\": \"2026-10-24T02:35:02.569Z\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Section roster (XML via Accept header)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Body is an XML roster\", () => {",
+                  "  pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/xml\");",
+                  "  const xml = pm.response.text();",
+                  "  pm.expect(xml.startsWith('<?xml version=\"1.0\" encoding=\"UTF-8\"?>')).to.be.true;",
+                  "  pm.expect(xml).to.include(\"<roster>\").and.include(\"</roster>\");",
+                  "  const count = Number(xml.match(/<count>(\\d+)<\\/count>/)[1]);",
+                  "  pm.expect((xml.match(/<student>/g) || []).length).to.eql(count);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{readKey}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/xml"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sections/CS4A/students?status=Graduated",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sections",
+                "CS4A",
+                "students"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "Graduated"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK (roster_xml)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{readKey}}"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/xml"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/sections/CS4A/students?status=Graduated",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "sections",
+                    "CS4A",
+                    "students"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "Graduated"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "xml",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/xml; charset=utf-8"
+                }
+              ],
+              "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<roster>\n  <section>CS4A</section>\n  <count>2</count>\n  <students>\n    <student>\n      <student_id>2023-00501</student_id>\n      <first_name>Joaquin</first_name>\n      <last_name>Tolentino</last_name>\n      <course>BSCS</course>\n      <year_level>4</year_level>\n      <section>CS4A</section>\n      <status>Graduated</status>\n      <created_at>2026-10-24T02:35:02.570Z</created_at>\n      <updated_at>2026-10-24T02:35:02.570Z</updated_at>\n    </student>\n    <student>\n      <student_id>2023-00505</student_id>\n      <first_name>Nathan</first_name>\n      <last_name>Vergara</last_name>\n      <course>BSCS</course>\n      <year_level>4</year_level>\n      <section>CS4A</section>\n      <status>Graduated</status>\n      <created_at>2026-10-24T02:35:02.570Z</created_at>\n      <updated_at>2026-10-24T02:35:02.570Z</updated_at>\n    </student>\n  </students>\n</roster>\n"
+            }
+          ]
+        },
+        {
+          "name": "Section roster (XML via ?format=xml)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Body is an XML roster\", () => {",
+                  "  pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/xml\");",
+                  "  const xml = pm.response.text();",
+                  "  pm.expect(xml.startsWith('<?xml version=\"1.0\" encoding=\"UTF-8\"?>')).to.be.true;",
+                  "  pm.expect(xml).to.include(\"<roster>\").and.include(\"</roster>\");",
+                  "  const count = Number(xml.match(/<count>(\\d+)<\\/count>/)[1]);",
+                  "  pm.expect((xml.match(/<student>/g) || []).length).to.eql(count);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{readKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sections/IT3A/students?format=xml",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sections",
+                "IT3A",
+                "students"
+              ],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "xml"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK (roster_xml_format)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{readKey}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/sections/IT3A/students?format=xml",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "sections",
+                    "IT3A",
+                    "students"
+                  ],
+                  "query": [
+                    {
+                      "key": "format",
+                      "value": "xml"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "xml",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/xml; charset=utf-8"
+                }
+              ],
+              "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<roster>\n  <section>IT3A</section>\n  <count>9</count>\n  <students>\n    <student>\n      <student_id>2024-00301</student_id>\n      <first_name>Sofia</first_name>\n      <last_name>Dela Cruz</last_name>\n      <course>BSIT</course>\n      <year_level>3</year_level>\n      <section>IT3A</section>\n      <status>Active</status>\n      <created_at>2026-10-24T02:35:02.569Z</created_at>\n      <updated_at>2026-10-24T02:35:02.569Z</updated_at>\n    </student>\n    <student>\n      <student_id>2024-00303</student_id>\n      <first_name>Ursula</first_name>\n      <last_name>Fernandez</last_name>\n      <course>BSIT</course>\n      <year_level>3</year_level>\n      <section>IT3A</section>\n      <status>Active</status>\n      <created_at>2026-10-24T02:35:02.569Z</created_at>\n      <updated_at>2026-10-24T02:35:02.569Z</updated_at>\n    </student>\n    <student>\n      <student_id>2024-00302</student_id>\n      <first_name>Tomas</first_name>\n      <last_name>Garcia</last_name>\n      <course>BSIT</course>\n      <year_level>3</year_level>\n      <section>IT3A</section>\n      <status>Active</status>\n      <created_at>2026-10-24T02:35:02.569Z</created_at>\n      <updated_at>2026-10-24T02:35:02.569Z</updated_at>\n    </student>\n    <student>\n      <student_id>2024-00306</student_id>\n      <first_name>Xavier</first_name>\n      <last_name>Lopez</last_name>\n      <course>BSIT</course>\n      <year_level>3</year_level>\n      <section>IT3A</section>\n      <status>Active</status>\n      <created_at>2026-10-24T02:35:02.570Z</created_at>\n      <updated_at>2026-10-24T02:35:02.570Z</updated_at>\n    </student>\n    <student>\n      <student_id>2024-00308</student_id>\n      <first_name>Zack</first_name>\n      <last_name>Manalo</last_name>\n      <course>BSIT</course>\n      <year_level>3</year_level>\n      <section>IT3A</section>\n      <status>Active</status>\n      <created_at>2026-10-24T02:35:02.570Z</created_at>\n      <updated_at>2026-10-24T02:35:02.570Z</updated_at>\n    </student>\n    <student>\n      <student_id>2024-00305</student_id>\n      <first_name>Wendy</first_name>\n      <last_name>Morales</last_name>\n      <course>BSIT</course>\n      <year_level>3</year_level>\n      <section>IT3A</section>\n      <status>Active</status>\n      <created_at>2026-10-24T02:35:02.569Z</created_at>\n      <updated_at>2026-10-24T02:35:02.569Z</updated_at>\n    </student>\n    <student>\n      <student_id>2024-00309</student_id>\n      <first_name>Ana Maria</first_name>\n      <last_name>O&apos;Reilly</last_name>\n      <course>BSIT</course>\n      <year_level>3</year_level>\n      <section>IT3A</section>\n      <status>Active</status>\n      <created_at>2026-10-24T02:35:02.570Z</created_at>\n      <updated_at>2026-10-24T02:35:02.570Z</updated_at>\n    </student>\n    <student>\n      <student_id>2024-00304</student_id>\n      <first_name>Victor</first_name>\n      <last_name>Pascual</last_name>\n      <course>BSIT</course>\n      <year_level>3</year_level>\n      <section>IT3A</section>\n      <status>Active</status>\n      <created_at>2026-10-24T02:35:02.569Z</created_at>\n      <updated_at>2026-10-24T02:35:02.569Z</updated_at>\n    </student>\n    <student>\n      <student_id>2024-00307</student_id>\n      <first_name>Yna</first_name>\n      <last_name>Rivera</last_name>\n      <course>BSIT</course>\n      <year_level>3</year_level>\n      <section>IT3A</section>\n      <status>Active</status>\n      <created_at>2026-10-24T02:35:02.570Z</created_at>\n      <updated_at>2026-10-24T02:35:02.570Z</updated_at>\n    </student>\n  </students>\n</roster>\n"
+            }
+          ]
+        },
+        {
+          "name": "Section roster - 404 unknown section",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Error shape with code SECTION_NOT_FOUND\", () => {",
+                  "  const e = pm.response.json().error;",
+                  "  pm.expect(e).to.have.all.keys([\"code\",\"message\"]);",
+                  "  pm.expect(e.code).to.eql(\"SECTION_NOT_FOUND\");",
+                  "  pm.expect(e.message).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{readKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sections/ZZ9Z/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sections",
+                "ZZ9Z",
+                "students"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "404 Not Found (roster_not_found)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{readKey}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/sections/ZZ9Z/students",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "sections",
+                    "ZZ9Z",
+                    "students"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"SECTION_NOT_FOUND\",\n    \"message\": \"No students found in section ZZ9Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Section roster - 422 invalid status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Error shape with code VALIDATION_ERROR\", () => {",
+                  "  const e = pm.response.json().error;",
+                  "  pm.expect(e).to.have.all.keys([\"code\",\"message\",\"details\"]);",
+                  "  pm.expect(e.code).to.eql(\"VALIDATION_ERROR\");",
+                  "  pm.expect(e.message).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{readKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sections/IT1A/students?status=Dropped",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sections",
+                "IT1A",
+                "students"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "Dropped"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "422 Unprocessable Entity (roster_invalid_status)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{readKey}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/sections/IT1A/students?status=Dropped",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "sections",
+                    "IT1A",
+                    "students"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "Dropped"
+                    }
+                  ]
+                }
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"The request has invalid or missing fields\",\n    \"details\": {\n      \"fields\": [\n        {\n          \"field\": \"status\",\n          \"message\": \"Invalid option: expected one of \\\"Active\\\"|\\\"Inactive\\\"|\\\"Graduated\\\"\"\n        }\n      ]\n    }\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin: create, update, delete",
+      "item": [
+        {
+          "name": "Create student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Body has the expected fields\", () => {",
+                  "  const b = pm.response.json();",
+                  "  pm.expect(b).to.have.all.keys([\"student_id\",\"first_name\",\"last_name\",\"course\",\"year_level\",\"section\",\"status\",\"created_at\",\"updated_at\"]);",
+                  "  pm.expect(b.student_id).to.eql(\"2026-00999\");",
+                  "  pm.expect(b.status).to.eql(\"Active\");",
+                  "});",
+                  "pm.test(\"Location header points to the new student\", () => pm.expect(pm.response.headers.get(\"Location\")).to.eql(\"/api/v1/students/2026-00999\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{adminKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_id\": \"2026-00999\",\n  \"first_name\": \"Demo\",\n  \"last_name\": \"Student\",\n  \"course\": \"BSIT\",\n  \"year_level\": 1,\n  \"section\": \"IT1A\",\n  \"status\": \"Active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "201 Created (create_student)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{adminKey}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"student_id\": \"2026-00999\",\n  \"first_name\": \"Demo\",\n  \"last_name\": \"Student\",\n  \"course\": \"BSIT\",\n  \"year_level\": 1,\n  \"section\": \"IT1A\",\n  \"status\": \"Active\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/students",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "students"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "location",
+                  "value": "/api/v1/students/2026-00999"
+                }
+              ],
+              "body": "{\n  \"student_id\": \"2026-00999\",\n  \"first_name\": \"Demo\",\n  \"last_name\": \"Student\",\n  \"course\": \"BSIT\",\n  \"year_level\": 1,\n  \"section\": \"IT1A\",\n  \"status\": \"Active\",\n  \"created_at\": \"2026-10-24T02:35:02.580Z\",\n  \"updated_at\": \"2026-10-24T02:35:02.580Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create student - 409 duplicate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Error shape with code STUDENT_EXISTS\", () => {",
+                  "  const e = pm.response.json().error;",
+                  "  pm.expect(e).to.have.all.keys([\"code\",\"message\",\"details\"]);",
+                  "  pm.expect(e.code).to.eql(\"STUDENT_EXISTS\");",
+                  "  pm.expect(e.message).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{adminKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_id\": \"2026-00999\",\n  \"first_name\": \"Demo\",\n  \"last_name\": \"Student\",\n  \"course\": \"BSIT\",\n  \"year_level\": 1,\n  \"section\": \"IT1A\",\n  \"status\": \"Active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "409 Conflict (create_student_duplicate)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{adminKey}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"student_id\": \"2026-00999\",\n  \"first_name\": \"Demo\",\n  \"last_name\": \"Student\",\n  \"course\": \"BSIT\",\n  \"year_level\": 1,\n  \"section\": \"IT1A\",\n  \"status\": \"Active\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/students",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "students"
+                  ]
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"STUDENT_EXISTS\",\n    \"message\": \"Student 2026-00999 already exists\",\n    \"details\": {\n      \"student_id\": \"2026-00999\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create student - 422 validation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Error shape with code VALIDATION_ERROR\", () => {",
+                  "  const e = pm.response.json().error;",
+                  "  pm.expect(e).to.have.all.keys([\"code\",\"message\",\"details\"]);",
+                  "  pm.expect(e.code).to.eql(\"VALIDATION_ERROR\");",
+                  "  pm.expect(e.message).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{adminKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_id\": \"26-999\",\n  \"first_name\": \"Demo\",\n  \"last_name\": \"\",\n  \"course\": \"BSIT\",\n  \"year_level\": 7,\n  \"section\": \"IT1A\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "422 Unprocessable Entity (create_student_invalid)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{adminKey}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"student_id\": \"26-999\",\n  \"first_name\": \"Demo\",\n  \"last_name\": \"\",\n  \"course\": \"BSIT\",\n  \"year_level\": 7,\n  \"section\": \"IT1A\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/students",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "students"
+                  ]
+                }
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"The request has invalid or missing fields\",\n    \"details\": {\n      \"fields\": [\n        {\n          \"field\": \"student_id\",\n          \"message\": \"must look like YYYY-NNNNN, e.g. 2026-00123\"\n        },\n        {\n          \"field\": \"last_name\",\n          \"message\": \"must not be empty\"\n        },\n        {\n          \"field\": \"year_level\",\n          \"message\": \"must be 1 to 5\"\n        },\n        {\n          \"field\": \"status\",\n          \"message\": \"Invalid option: expected one of \\\"Active\\\"|\\\"Inactive\\\"|\\\"Graduated\\\"\"\n        }\n      ]\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create student - 415 wrong content type",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 415\", () => pm.response.to.have.status(415));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Error shape with code UNSUPPORTED_MEDIA_TYPE\", () => {",
+                  "  const e = pm.response.json().error;",
+                  "  pm.expect(e).to.have.all.keys([\"code\",\"message\"]);",
+                  "  pm.expect(e.code).to.eql(\"UNSUPPORTED_MEDIA_TYPE\");",
+                  "  pm.expect(e.message).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{adminKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "text/plain"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"student_id\":\"2026-00999\",\"first_name\":\"Demo\",\"last_name\":\"Student\",\"course\":\"BSIT\",\"year_level\":1,\"section\":\"IT1A\",\"status\":\"Active\"}",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "415 Unsupported Media Type (create_student_wrong_content_type)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{adminKey}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "text/plain"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"student_id\":\"2026-00999\",\"first_name\":\"Demo\",\"last_name\":\"Student\",\"course\":\"BSIT\",\"year_level\":1,\"section\":\"IT1A\",\"status\":\"Active\"}",
+                  "options": {
+                    "raw": {
+                      "language": "text"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/students",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "students"
+                  ]
+                }
+              },
+              "status": "Unsupported Media Type",
+              "code": 415,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"UNSUPPORTED_MEDIA_TYPE\",\n    \"message\": \"Content-Type must be application/json\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create student - 400 malformed JSON",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Error shape with code MALFORMED_JSON\", () => {",
+                  "  const e = pm.response.json().error;",
+                  "  pm.expect(e).to.have.all.keys([\"code\",\"message\"]);",
+                  "  pm.expect(e.code).to.eql(\"MALFORMED_JSON\");",
+                  "  pm.expect(e.message).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{adminKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"student_id\": \"2026-00999\", \"first_name\": ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "400 Bad Request (create_student_malformed_json)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{adminKey}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"student_id\": \"2026-00999\", \"first_name\": ",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/students",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "students"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"MALFORMED_JSON\",\n    \"message\": \"The request body is not valid JSON\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update student (full replace)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Body has the expected fields\", () => {",
+                  "  const b = pm.response.json();",
+                  "  pm.expect(b).to.have.all.keys([\"student_id\",\"first_name\",\"last_name\",\"course\",\"year_level\",\"section\",\"status\",\"created_at\",\"updated_at\"]);",
+                  "  pm.expect(b.student_id).to.eql(\"2026-00999\");",
+                  "  pm.expect(b.status).to.eql(\"Inactive\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{adminKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Demo\",\n  \"last_name\": \"Student\",\n  \"course\": \"BSIT\",\n  \"year_level\": 2,\n  \"section\": \"IT2B\",\n  \"status\": \"Inactive\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/2026-00999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "2026-00999"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK (update_student)",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{adminKey}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"first_name\": \"Demo\",\n  \"last_name\": \"Student\",\n  \"course\": \"BSIT\",\n  \"year_level\": 2,\n  \"section\": \"IT2B\",\n  \"status\": \"Inactive\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/students/2026-00999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "students",
+                    "2026-00999"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"student_id\": \"2026-00999\",\n  \"first_name\": \"Demo\",\n  \"last_name\": \"Student\",\n  \"course\": \"BSIT\",\n  \"year_level\": 2,\n  \"section\": \"IT2B\",\n  \"status\": \"Inactive\",\n  \"created_at\": \"2026-10-24T02:35:02.580Z\",\n  \"updated_at\": \"2026-10-24T02:35:02.583Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update student - 422 student_id mismatch",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Error shape with code VALIDATION_ERROR\", () => {",
+                  "  const e = pm.response.json().error;",
+                  "  pm.expect(e).to.have.all.keys([\"code\",\"message\",\"details\"]);",
+                  "  pm.expect(e.code).to.eql(\"VALIDATION_ERROR\");",
+                  "  pm.expect(e.message).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{adminKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Demo\",\n  \"last_name\": \"Student\",\n  \"course\": \"BSIT\",\n  \"year_level\": 2,\n  \"section\": \"IT2B\",\n  \"status\": \"Inactive\",\n  \"student_id\": \"2026-00998\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/2026-00999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "2026-00999"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "422 Unprocessable Entity (update_student_id_mismatch)",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{adminKey}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"first_name\": \"Demo\",\n  \"last_name\": \"Student\",\n  \"course\": \"BSIT\",\n  \"year_level\": 2,\n  \"section\": \"IT2B\",\n  \"status\": \"Inactive\",\n  \"student_id\": \"2026-00998\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/students/2026-00999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "students",
+                    "2026-00999"
+                  ]
+                }
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"The request has invalid or missing fields\",\n    \"details\": {\n      \"fields\": [\n        {\n          \"field\": \"student_id\",\n          \"message\": \"must match the student_id in the URL (it cannot be changed)\"\n        }\n      ]\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update student - 404 not found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Error shape with code STUDENT_NOT_FOUND\", () => {",
+                  "  const e = pm.response.json().error;",
+                  "  pm.expect(e).to.have.all.keys([\"code\",\"message\"]);",
+                  "  pm.expect(e.code).to.eql(\"STUDENT_NOT_FOUND\");",
+                  "  pm.expect(e.message).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{adminKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Demo\",\n  \"last_name\": \"Student\",\n  \"course\": \"BSIT\",\n  \"year_level\": 2,\n  \"section\": \"IT2B\",\n  \"status\": \"Inactive\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/2026-99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "2026-99999"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "404 Not Found (update_student_not_found)",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{adminKey}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"first_name\": \"Demo\",\n  \"last_name\": \"Student\",\n  \"course\": \"BSIT\",\n  \"year_level\": 2,\n  \"section\": \"IT2B\",\n  \"status\": \"Inactive\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/students/2026-99999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "students",
+                    "2026-99999"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"STUDENT_NOT_FOUND\",\n    \"message\": \"No student with id 2026-99999\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 204\", () => pm.response.to.have.status(204));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Body is empty\", () => pm.expect(pm.response.text()).to.eql(\"\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{adminKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/2026-00999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "2026-00999"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "204 No Content (delete_student)",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{adminKey}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/students/2026-00999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "students",
+                    "2026-00999"
+                  ]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": "text",
+              "header": [],
+              "body": ""
+            }
+          ]
+        },
+        {
+          "name": "Delete student - 404 not found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Has X-Request-Id header\", () => pm.response.to.have.header(\"X-Request-Id\"));",
+                  "pm.test(\"Error shape with code STUDENT_NOT_FOUND\", () => {",
+                  "  const e = pm.response.json().error;",
+                  "  pm.expect(e).to.have.all.keys([\"code\",\"message\"]);",
+                  "  pm.expect(e.code).to.eql(\"STUDENT_NOT_FOUND\");",
+                  "  pm.expect(e.message).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{adminKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/2026-00999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "students",
+                "2026-00999"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "404 Not Found (delete_student_not_found)",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{adminKey}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/students/2026-00999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "students",
+                    "2026-00999"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"STUDENT_NOT_FOUND\",\n    \"message\": \"No student with id 2026-00999\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

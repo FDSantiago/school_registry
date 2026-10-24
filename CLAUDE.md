@@ -29,6 +29,11 @@ MySQL 8.4 requires `?sslmode=require` on connection URLs (otherwise login fails 
 - `bun test`: tests (use `TEST_DATABASE_URL`, never the dev database)
 - `bun run seed`: reset the database to the fictional seed data
 - `docker compose up --build`: production-style run (API + MySQL)
+- `bun run docs`: re-record docs/examples.json from a real run and regenerate the Postman collection + environment.
+  docs/openapi.yaml is hand-written; tests/docs.test.ts fails if its examples drift from docs/examples.json
+  or if docs/examples.json drifts from the app. After changing a response, run `bun run docs`, then update openapi.yaml.
+- `bun run docs:lint`: Redocly lint of docs/openapi.yaml (config in redocly.yaml)
+- `bun run postman`: run the Postman collection with newman against a running, freshly seeded server
 
 ## Data model
 

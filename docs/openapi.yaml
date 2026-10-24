@@ -1,0 +1,640 @@
+openapi: 3.0.3
+info:
+  title: School Registry API
+  version: 1.0.0
+  description: |
+    Student/section registry for the CIT 305 Systems Integration and Architecture project (System 2).
+
+    * All bodies are JSON with snake_case fields. The section roster can also be returned as XML.
+    * Every endpoint except `/health` needs an `X-API-Key` header. The **read** key works for GET endpoints;
+      the **admin** key works for everything.
+    * Every response carries an `X-Request-Id` header (yours, if you sent a valid one; otherwise generated).
+    * Every error uses the same shape: `{"error": {"code", "message", "details"?}}`.
+    * Each API key may make `RATE_LIMIT_PER_MINUTE` requests per minute (default 60); then 429 with `Retry-After`.
+
+    All examples below were recorded from a real run of the server (`bun run docs`).
+servers:
+  - url: http://localhost:4000
+    description: Local (dev container or docker compose)
+
+tags:
+  - name: Health
+    description: Is the service up? No API key needed.
+  - name: Students
+    description: Look up one student; create, replace and delete students (admin key).
+  - name: Sections
+    description: Section rosters, as JSON or XML.
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Liveness check (no API key)
+      operationId: getHealth
+      security: []
+      responses:
+        "200":
+          description: The server is running.
+          headers:
+            X-Request-Id: { $ref: "#/components/headers/X-Request-Id" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Health" }
+              examples:
+                health:
+                  value:
+                    status: ok
+                    version: 1.0.0
+                    time: "2026-10-24T02:35:02.576Z"
+
+  /api/v1/students:
+    post:
+      tags: [Students]
+      summary: Create a student (admin key)
+      operationId: createStudent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NewStudent" }
+            example:
+              student_id: 2026-00999
+              first_name: Demo
+              last_name: Student
+              course: BSIT
+              year_level: 1
+              section: IT1A
+              status: Active
+      responses:
+        "201":
+          description: Created. `Location` points to the new student.
+          headers:
+            Location:
+              description: Path of the created student.
+              schema: { type: string, example: /api/v1/students/2026-00999 }
+            X-Request-Id: { $ref: "#/components/headers/X-Request-Id" }
+            X-RateLimit-Limit: { $ref: "#/components/headers/X-RateLimit-Limit" }
+            X-RateLimit-Remaining: { $ref: "#/components/headers/X-RateLimit-Remaining" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Student" }
+              examples:
+                create_student:
+                  value:
+                    student_id: 2026-00999
+                    first_name: Demo
+                    last_name: Student
+                    course: BSIT
+                    year_level: 1
+                    section: IT1A
+                    status: Active
+                    created_at: "2026-10-24T02:35:02.580Z"
+                    updated_at: "2026-10-24T02:35:02.580Z"
+        "400": { $ref: "#/components/responses/MalformedJson" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409":
+          description: A student with this `student_id` already exists.
+          headers:
+            X-Request-Id: { $ref: "#/components/headers/X-Request-Id" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              examples:
+                create_student_duplicate:
+                  value:
+                    error:
+                      code: STUDENT_EXISTS
+                      message: Student 2026-00999 already exists
+                      details:
+                        student_id: 2026-00999
+        "415": { $ref: "#/components/responses/UnsupportedMediaType" }
+        "422":
+          description: Validation failed. `details.fields` lists every problem.
+          headers:
+            X-Request-Id: { $ref: "#/components/headers/X-Request-Id" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ValidationError" }
+              examples:
+                create_student_invalid:
+                  value:
+                    error:
+                      code: VALIDATION_ERROR
+                      message: The request has invalid or missing fields
+                      details:
+                        fields:
+                          - field: student_id
+                            message: must look like YYYY-NNNNN, e.g. 2026-00123
+                          - field: last_name
+                            message: must not be empty
+                          - field: year_level
+                            message: must be 1 to 5
+                          - field: status
+                            message: 'Invalid option: expected one of "Active"|"Inactive"|"Graduated"'
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /api/v1/students/{student_id}:
+    parameters:
+      - $ref: "#/components/parameters/StudentId"
+    get:
+      tags: [Students]
+      summary: Get one student (read key)
+      description: Returns the student whatever their status; inactive and graduated students are not hidden.
+      operationId: getStudent
+      responses:
+        "200":
+          description: The student.
+          headers:
+            X-Request-Id: { $ref: "#/components/headers/X-Request-Id" }
+            X-RateLimit-Limit: { $ref: "#/components/headers/X-RateLimit-Limit" }
+            X-RateLimit-Remaining: { $ref: "#/components/headers/X-RateLimit-Remaining" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Student" }
+              examples:
+                get_student:
+                  value:
+                    student_id: 2024-00309
+                    first_name: Ana Maria
+                    last_name: O'Reilly
+                    course: BSIT
+                    year_level: 3
+                    section: IT3A
+                    status: Active
+                    created_at: "2026-10-24T02:35:02.570Z"
+                    updated_at: "2026-10-24T02:35:02.570Z"
+                get_student_graduated:
+                  value:
+                    student_id: 2023-00501
+                    first_name: Joaquin
+                    last_name: Tolentino
+                    course: BSCS
+                    year_level: 4
+                    section: CS4A
+                    status: Graduated
+                    created_at: "2026-10-24T02:35:02.570Z"
+                    updated_at: "2026-10-24T02:35:02.570Z"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/StudentNotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
+    put:
+      tags: [Students]
+      summary: Replace a student (admin key)
+      description: |
+        Full update: every field except `student_id` is required. `student_id` may be included,
+        but must equal the one in the URL (a student's id cannot be changed).
+      operationId: updateStudent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/StudentUpdate" }
+            example:
+              first_name: Demo
+              last_name: Student
+              course: BSIT
+              year_level: 2
+              section: IT2B
+              status: Inactive
+      responses:
+        "200":
+          description: The updated student.
+          headers:
+            X-Request-Id: { $ref: "#/components/headers/X-Request-Id" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Student" }
+              examples:
+                update_student:
+                  value:
+                    student_id: 2026-00999
+                    first_name: Demo
+                    last_name: Student
+                    course: BSIT
+                    year_level: 2
+                    section: IT2B
+                    status: Inactive
+                    created_at: "2026-10-24T02:35:02.580Z"
+                    updated_at: "2026-10-24T02:35:02.583Z"
+        "400": { $ref: "#/components/responses/MalformedJson" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/StudentNotFound" }
+        "415": { $ref: "#/components/responses/UnsupportedMediaType" }
+        "422":
+          description: Validation failed (missing/invalid fields, or `student_id` differs from the URL).
+          headers:
+            X-Request-Id: { $ref: "#/components/headers/X-Request-Id" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ValidationError" }
+              examples:
+                update_student_id_mismatch:
+                  value:
+                    error:
+                      code: VALIDATION_ERROR
+                      message: The request has invalid or missing fields
+                      details:
+                        fields:
+                          - field: student_id
+                            message: must match the student_id in the URL (it cannot be changed)
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
+    delete:
+      tags: [Students]
+      summary: Delete a student (admin key)
+      operationId: deleteStudent
+      responses:
+        "204":
+          description: Deleted. No body.
+          headers:
+            X-Request-Id: { $ref: "#/components/headers/X-Request-Id" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/StudentNotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /api/v1/sections/{section}/students:
+    get:
+      tags: [Sections]
+      summary: Section roster (read key), JSON or XML
+      description: |
+        Students in a section, sorted by last name, first name, student_id.
+        The section name is matched in any case (`it3a` = `IT3A`) and returned as stored (uppercase).
+
+        **XML:** send `Accept: application/xml` or add `?format=xml`. `?format=json` forces JSON.
+        Errors are always JSON.
+
+        **404** only if the section has no students at all. A `status` filter that matches nobody
+        in an existing section returns 200 with `count: 0`.
+      operationId: getSectionRoster
+      parameters:
+        - name: section
+          in: path
+          required: true
+          schema: { type: string, example: IT3A }
+        - name: status
+          in: query
+          required: false
+          schema: { $ref: "#/components/schemas/StudentStatus" }
+        - name: format
+          in: query
+          required: false
+          description: Overrides the Accept header.
+          schema: { type: string, enum: [json, xml] }
+      responses:
+        "200":
+          description: The roster.
+          headers:
+            X-Request-Id: { $ref: "#/components/headers/X-Request-Id" }
+            X-RateLimit-Limit: { $ref: "#/components/headers/X-RateLimit-Limit" }
+            X-RateLimit-Remaining: { $ref: "#/components/headers/X-RateLimit-Remaining" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Roster" }
+              examples:
+                roster_status_filter:
+                  summary: GET /api/v1/sections/it1a/students?status=Inactive
+                  value:
+                    section: IT1A
+                    count: 1
+                    students:
+                      - student_id: 2026-00109
+                        first_name: Ivan
+                        last_name: Castillo
+                        course: BSIT
+                        year_level: 1
+                        section: IT1A
+                        status: Inactive
+                        created_at: "2026-10-24T02:35:02.569Z"
+                        updated_at: "2026-10-24T02:35:02.569Z"
+            application/xml:
+              schema:
+                type: string
+                description: |
+                  An XML document with the same fields as the JSON Roster:
+                  `<roster>` containing `<section>`, `<count>` and `<students>`, which holds one `<student>`
+                  element per student with one child element per field. Text is XML-escaped (&amp; &lt; &gt; &quot; &apos;).
+              examples:
+                roster_xml:
+                  summary: GET /api/v1/sections/CS4A/students?status=Graduated with Accept application/xml
+                  value: |
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <roster>
+                      <section>CS4A</section>
+                      <count>2</count>
+                      <students>
+                        <student>
+                          <student_id>2023-00501</student_id>
+                          <first_name>Joaquin</first_name>
+                          <last_name>Tolentino</last_name>
+                          <course>BSCS</course>
+                          <year_level>4</year_level>
+                          <section>CS4A</section>
+                          <status>Graduated</status>
+                          <created_at>2026-10-24T02:35:02.570Z</created_at>
+                          <updated_at>2026-10-24T02:35:02.570Z</updated_at>
+                        </student>
+                        <student>
+                          <student_id>2023-00505</student_id>
+                          <first_name>Nathan</first_name>
+                          <last_name>Vergara</last_name>
+                          <course>BSCS</course>
+                          <year_level>4</year_level>
+                          <section>CS4A</section>
+                          <status>Graduated</status>
+                          <created_at>2026-10-24T02:35:02.570Z</created_at>
+                          <updated_at>2026-10-24T02:35:02.570Z</updated_at>
+                        </student>
+                      </students>
+                    </roster>
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404":
+          description: No students in this section.
+          headers:
+            X-Request-Id: { $ref: "#/components/headers/X-Request-Id" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              examples:
+                roster_not_found:
+                  value:
+                    error:
+                      code: SECTION_NOT_FOUND
+                      message: No students found in section ZZ9Z
+        "422":
+          description: Invalid `status` or `format` value.
+          headers:
+            X-Request-Id: { $ref: "#/components/headers/X-Request-Id" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ValidationError" }
+              examples:
+                roster_invalid_status:
+                  value:
+                    error:
+                      code: VALIDATION_ERROR
+                      message: The request has invalid or missing fields
+                      details:
+                        fields:
+                          - field: status
+                            message: 'Invalid option: expected one of "Active"|"Inactive"|"Graduated"'
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: REGISTRY_READ_KEY (GET endpoints) or REGISTRY_ADMIN_KEY (all endpoints).
+
+  parameters:
+    StudentId:
+      name: student_id
+      in: path
+      required: true
+      description: Format YYYY-NNNNN. A malformed id returns 404 (it cannot exist).
+      schema: { type: string, pattern: '^\d{4}-\d{5}$', example: 2024-00309 }
+
+  headers:
+    X-Request-Id:
+      description: "Your X-Request-Id if it was 1-128 characters of A-Z a-z 0-9 . _ : - (otherwise a generated UUID). Quote it when reporting problems."
+      schema: { type: string, example: 58610266-7a68-4192-aa35-dea3965ebc05 }
+    X-RateLimit-Limit:
+      description: Requests allowed per key per minute.
+      schema: { type: integer, example: 60 }
+    X-RateLimit-Remaining:
+      description: Requests left in the current one-minute window.
+      schema: { type: integer, example: 59 }
+    Retry-After:
+      description: Seconds until the rate-limit window resets.
+      schema: { type: integer, example: 60 }
+
+  schemas:
+    StudentStatus:
+      type: string
+      enum: [Active, Inactive, Graduated]
+
+    Student:
+      type: object
+      required: [student_id, first_name, last_name, course, year_level, section, status, created_at, updated_at]
+      properties:
+        student_id: { type: string, pattern: '^\d{4}-\d{5}$', example: 2024-00309 }
+        first_name: { type: string, maxLength: 100, example: Ana Maria }
+        last_name: { type: string, maxLength: 100, example: O'Reilly }
+        course: { type: string, maxLength: 20, example: BSIT }
+        year_level: { type: integer, minimum: 1, maximum: 5, example: 3 }
+        section: { type: string, pattern: '^[A-Z0-9-]{1,20}$', example: IT3A }
+        status: { $ref: "#/components/schemas/StudentStatus" }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+      xml: { name: student }
+
+    NewStudent:
+      type: object
+      additionalProperties: false
+      description: Text fields are trimmed; `section` is stored in uppercase. Unknown fields are rejected (422).
+      required: [student_id, first_name, last_name, course, year_level, section, status]
+      properties:
+        student_id: { type: string, pattern: '^\d{4}-\d{5}$', example: 2026-00999 }
+        first_name: { type: string, minLength: 1, maxLength: 100 }
+        last_name: { type: string, minLength: 1, maxLength: 100 }
+        course: { type: string, minLength: 1, maxLength: 20 }
+        year_level: { type: integer, minimum: 1, maximum: 5 }
+        section: { type: string, pattern: '^[A-Za-z0-9-]{1,20}$' }
+        status: { $ref: "#/components/schemas/StudentStatus" }
+
+    StudentUpdate:
+      type: object
+      additionalProperties: false
+      description: Same as NewStudent, but `student_id` is optional and must equal the URL's.
+      required: [first_name, last_name, course, year_level, section, status]
+      properties:
+        student_id: { type: string, pattern: '^\d{4}-\d{5}$' }
+        first_name: { type: string, minLength: 1, maxLength: 100 }
+        last_name: { type: string, minLength: 1, maxLength: 100 }
+        course: { type: string, minLength: 1, maxLength: 20 }
+        year_level: { type: integer, minimum: 1, maximum: 5 }
+        section: { type: string, pattern: '^[A-Za-z0-9-]{1,20}$' }
+        status: { $ref: "#/components/schemas/StudentStatus" }
+
+    Roster:
+      type: object
+      required: [section, count, students]
+      properties:
+        section: { type: string, example: IT3A }
+        count: { type: integer, example: 9 }
+        students:
+          type: array
+          items: { $ref: "#/components/schemas/Student" }
+          xml: { wrapped: true }
+      xml: { name: roster }
+
+    Health:
+      type: object
+      required: [status, version, time]
+      properties:
+        status: { type: string, enum: [ok] }
+        version: { type: string, example: 1.0.0 }
+        time: { type: string, format: date-time }
+
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum:
+                - MALFORMED_JSON
+                - UNAUTHORIZED
+                - FORBIDDEN
+                - NOT_FOUND
+                - STUDENT_NOT_FOUND
+                - SECTION_NOT_FOUND
+                - STUDENT_EXISTS
+                - UNSUPPORTED_MEDIA_TYPE
+                - VALIDATION_ERROR
+                - RATE_LIMITED
+                - INTERNAL_ERROR
+            message: { type: string, description: Human-readable; may change. Program against `code`. }
+            details: { type: object, additionalProperties: true }
+
+    ValidationError:
+      description: The Error shape for 422, where `details.fields` lists every problem.
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, details]
+          properties:
+            code: { type: string, enum: [VALIDATION_ERROR] }
+            message: { type: string }
+            details:
+              type: object
+              required: [fields]
+              properties:
+                fields:
+                  type: array
+                  items:
+                    type: object
+                    required: [field, message]
+                    properties:
+                      field: { type: string, description: 'Field name, or "(body)" for the whole body.' }
+                      message: { type: string }
+
+  responses:
+    MalformedJson:
+      description: The body is not valid JSON.
+      headers:
+        X-Request-Id: { $ref: "#/components/headers/X-Request-Id" }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          examples:
+            create_student_malformed_json:
+              value:
+                error:
+                  code: MALFORMED_JSON
+                  message: The request body is not valid JSON
+    Unauthorized:
+      description: X-API-Key is missing or unknown.
+      headers:
+        X-Request-Id: { $ref: "#/components/headers/X-Request-Id" }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          examples:
+            missing_api_key:
+              value:
+                error:
+                  code: UNAUTHORIZED
+                  message: Missing X-API-Key header
+            invalid_api_key:
+              value:
+                error:
+                  code: UNAUTHORIZED
+                  message: Invalid API key
+    Forbidden:
+      description: The read key was used on an endpoint that needs the admin key.
+      headers:
+        X-Request-Id: { $ref: "#/components/headers/X-Request-Id" }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          examples:
+            create_student_read_key:
+              value:
+                error:
+                  code: FORBIDDEN
+                  message: This endpoint requires the admin API key
+    StudentNotFound:
+      description: No student with this id.
+      headers:
+        X-Request-Id: { $ref: "#/components/headers/X-Request-Id" }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          examples:
+            get_student_not_found:
+              value:
+                error:
+                  code: STUDENT_NOT_FOUND
+                  message: No student with id 2026-99999
+    UnsupportedMediaType:
+      description: Content-Type is not application/json.
+      headers:
+        X-Request-Id: { $ref: "#/components/headers/X-Request-Id" }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          examples:
+            create_student_wrong_content_type:
+              value:
+                error:
+                  code: UNSUPPORTED_MEDIA_TYPE
+                  message: Content-Type must be application/json
+    RateLimited:
+      description: Too many requests with this key in the current minute.
+      headers:
+        Retry-After: { $ref: "#/components/headers/Retry-After" }
+        X-Request-Id: { $ref: "#/components/headers/X-Request-Id" }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          examples:
+            rate_limited:
+              value:
+                error:
+                  code: RATE_LIMITED
+                  message: "Too many requests: the limit is 60 per minute"
+                  details:
+                    retry_after_seconds: 60
+    InternalError:
+      description: Unexpected server error (e.g. database unavailable). No internal details are returned.
+      headers:
+        X-Request-Id: { $ref: "#/components/headers/X-Request-Id" }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          examples:
+            internal_error:
+              value:
+                error:
+                  code: INTERNAL_ERROR
+                  message: An unexpected error occurred. Quote the request id when reporting it.
+                  details:
+                    request_id: 31d1125f-fc5c-47c2-a898-21b78a8ba327
+
+security:
+  - ApiKey: []

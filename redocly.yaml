@@ -1,0 +1,10 @@
+# Config for `bun run docs:lint` (Redocly CLI).
+extends:
+  - recommended
+rules:
+  # The API is run locally for the course demo, so the server URL is localhost on purpose.
+  no-server-example.com: off
+  # /health takes no input and needs no key, so it has no 4xx responses.
+  operation-4xx-response: off
+  # Coursework project: no license has been chosen.
+  info-license: off

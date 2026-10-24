@@ -1,0 +1,800 @@
+[
+  {
+    "name": "health",
+    "title": "Health check",
+    "folder": "Health",
+    "request": {
+      "method": "GET",
+      "path": "/health",
+      "headers": {}
+    },
+    "response": {
+      "status": 200,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "status": "ok",
+        "version": "1.0.0",
+        "time": "2026-10-24T02:35:02.576Z"
+      }
+    }
+  },
+  {
+    "name": "get_student",
+    "title": "Get student",
+    "folder": "Students",
+    "request": {
+      "method": "GET",
+      "path": "/api/v1/students/2024-00309",
+      "headers": {
+        "X-API-Key": "{{readKey}}"
+      }
+    },
+    "response": {
+      "status": 200,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "student_id": "2024-00309",
+        "first_name": "Ana Maria",
+        "last_name": "O'Reilly",
+        "course": "BSIT",
+        "year_level": 3,
+        "section": "IT3A",
+        "status": "Active",
+        "created_at": "2026-10-24T02:35:02.570Z",
+        "updated_at": "2026-10-24T02:35:02.570Z"
+      }
+    }
+  },
+  {
+    "name": "get_student_graduated",
+    "title": "Get student (graduated, still returned)",
+    "folder": "Students",
+    "request": {
+      "method": "GET",
+      "path": "/api/v1/students/2023-00501",
+      "headers": {
+        "X-API-Key": "{{readKey}}"
+      }
+    },
+    "response": {
+      "status": 200,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "student_id": "2023-00501",
+        "first_name": "Joaquin",
+        "last_name": "Tolentino",
+        "course": "BSCS",
+        "year_level": 4,
+        "section": "CS4A",
+        "status": "Graduated",
+        "created_at": "2026-10-24T02:35:02.570Z",
+        "updated_at": "2026-10-24T02:35:02.570Z"
+      }
+    }
+  },
+  {
+    "name": "get_student_not_found",
+    "title": "Get student - 404 not found",
+    "folder": "Students",
+    "request": {
+      "method": "GET",
+      "path": "/api/v1/students/2026-99999",
+      "headers": {
+        "X-API-Key": "{{readKey}}"
+      }
+    },
+    "response": {
+      "status": 404,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "error": {
+          "code": "STUDENT_NOT_FOUND",
+          "message": "No student with id 2026-99999"
+        }
+      }
+    }
+  },
+  {
+    "name": "missing_api_key",
+    "title": "Get student - 401 missing key",
+    "folder": "Auth errors",
+    "request": {
+      "method": "GET",
+      "path": "/api/v1/students/2024-00309",
+      "headers": {}
+    },
+    "response": {
+      "status": 401,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "error": {
+          "code": "UNAUTHORIZED",
+          "message": "Missing X-API-Key header"
+        }
+      }
+    }
+  },
+  {
+    "name": "invalid_api_key",
+    "title": "Get student - 401 invalid key",
+    "folder": "Auth errors",
+    "request": {
+      "method": "GET",
+      "path": "/api/v1/students/2024-00309",
+      "headers": {
+        "X-API-Key": "not-a-real-key-0000000000"
+      }
+    },
+    "response": {
+      "status": 401,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "error": {
+          "code": "UNAUTHORIZED",
+          "message": "Invalid API key"
+        }
+      }
+    }
+  },
+  {
+    "name": "roster",
+    "title": "Section roster (JSON)",
+    "folder": "Sections",
+    "request": {
+      "method": "GET",
+      "path": "/api/v1/sections/IT3A/students",
+      "headers": {
+        "X-API-Key": "{{readKey}}"
+      }
+    },
+    "response": {
+      "status": 200,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "section": "IT3A",
+        "count": 9,
+        "students": [
+          {
+            "student_id": "2024-00301",
+            "first_name": "Sofia",
+            "last_name": "Dela Cruz",
+            "course": "BSIT",
+            "year_level": 3,
+            "section": "IT3A",
+            "status": "Active",
+            "created_at": "2026-10-24T02:35:02.569Z",
+            "updated_at": "2026-10-24T02:35:02.569Z"
+          },
+          {
+            "student_id": "2024-00303",
+            "first_name": "Ursula",
+            "last_name": "Fernandez",
+            "course": "BSIT",
+            "year_level": 3,
+            "section": "IT3A",
+            "status": "Active",
+            "created_at": "2026-10-24T02:35:02.569Z",
+            "updated_at": "2026-10-24T02:35:02.569Z"
+          },
+          {
+            "student_id": "2024-00302",
+            "first_name": "Tomas",
+            "last_name": "Garcia",
+            "course": "BSIT",
+            "year_level": 3,
+            "section": "IT3A",
+            "status": "Active",
+            "created_at": "2026-10-24T02:35:02.569Z",
+            "updated_at": "2026-10-24T02:35:02.569Z"
+          },
+          {
+            "student_id": "2024-00306",
+            "first_name": "Xavier",
+            "last_name": "Lopez",
+            "course": "BSIT",
+            "year_level": 3,
+            "section": "IT3A",
+            "status": "Active",
+            "created_at": "2026-10-24T02:35:02.570Z",
+            "updated_at": "2026-10-24T02:35:02.570Z"
+          },
+          {
+            "student_id": "2024-00308",
+            "first_name": "Zack",
+            "last_name": "Manalo",
+            "course": "BSIT",
+            "year_level": 3,
+            "section": "IT3A",
+            "status": "Active",
+            "created_at": "2026-10-24T02:35:02.570Z",
+            "updated_at": "2026-10-24T02:35:02.570Z"
+          },
+          {
+            "student_id": "2024-00305",
+            "first_name": "Wendy",
+            "last_name": "Morales",
+            "course": "BSIT",
+            "year_level": 3,
+            "section": "IT3A",
+            "status": "Active",
+            "created_at": "2026-10-24T02:35:02.569Z",
+            "updated_at": "2026-10-24T02:35:02.569Z"
+          },
+          {
+            "student_id": "2024-00309",
+            "first_name": "Ana Maria",
+            "last_name": "O'Reilly",
+            "course": "BSIT",
+            "year_level": 3,
+            "section": "IT3A",
+            "status": "Active",
+            "created_at": "2026-10-24T02:35:02.570Z",
+            "updated_at": "2026-10-24T02:35:02.570Z"
+          },
+          {
+            "student_id": "2024-00304",
+            "first_name": "Victor",
+            "last_name": "Pascual",
+            "course": "BSIT",
+            "year_level": 3,
+            "section": "IT3A",
+            "status": "Active",
+            "created_at": "2026-10-24T02:35:02.569Z",
+            "updated_at": "2026-10-24T02:35:02.569Z"
+          },
+          {
+            "student_id": "2024-00307",
+            "first_name": "Yna",
+            "last_name": "Rivera",
+            "course": "BSIT",
+            "year_level": 3,
+            "section": "IT3A",
+            "status": "Active",
+            "created_at": "2026-10-24T02:35:02.570Z",
+            "updated_at": "2026-10-24T02:35:02.570Z"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "roster_status_filter",
+    "title": "Section roster - status filter, any-case section",
+    "folder": "Sections",
+    "request": {
+      "method": "GET",
+      "path": "/api/v1/sections/it1a/students?status=Inactive",
+      "headers": {
+        "X-API-Key": "{{readKey}}"
+      }
+    },
+    "response": {
+      "status": 200,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "section": "IT1A",
+        "count": 1,
+        "students": [
+          {
+            "student_id": "2026-00109",
+            "first_name": "Ivan",
+            "last_name": "Castillo",
+            "course": "BSIT",
+            "year_level": 1,
+            "section": "IT1A",
+            "status": "Inactive",
+            "created_at": "2026-10-24T02:35:02.569Z",
+            "updated_at": "2026-10-24T02:35:02.569Z"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "roster_xml",
+    "title": "Section roster (XML via Accept header)",
+    "folder": "Sections",
+    "request": {
+      "method": "GET",
+      "path": "/api/v1/sections/CS4A/students?status=Graduated",
+      "headers": {
+        "X-API-Key": "{{readKey}}",
+        "Accept": "application/xml"
+      }
+    },
+    "response": {
+      "status": 200,
+      "headers": {
+        "content-type": "application/xml; charset=utf-8"
+      },
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<roster>\n  <section>CS4A</section>\n  <count>2</count>\n  <students>\n    <student>\n      <student_id>2023-00501</student_id>\n      <first_name>Joaquin</first_name>\n      <last_name>Tolentino</last_name>\n      <course>BSCS</course>\n      <year_level>4</year_level>\n      <section>CS4A</section>\n      <status>Graduated</status>\n      <created_at>2026-10-24T02:35:02.570Z</created_at>\n      <updated_at>2026-10-24T02:35:02.570Z</updated_at>\n    </student>\n    <student>\n      <student_id>2023-00505</student_id>\n      <first_name>Nathan</first_name>\n      <last_name>Vergara</last_name>\n      <course>BSCS</course>\n      <year_level>4</year_level>\n      <section>CS4A</section>\n      <status>Graduated</status>\n      <created_at>2026-10-24T02:35:02.570Z</created_at>\n      <updated_at>2026-10-24T02:35:02.570Z</updated_at>\n    </student>\n  </students>\n</roster>\n"
+    }
+  },
+  {
+    "name": "roster_xml_format",
+    "title": "Section roster (XML via ?format=xml)",
+    "folder": "Sections",
+    "request": {
+      "method": "GET",
+      "path": "/api/v1/sections/IT3A/students?format=xml",
+      "headers": {
+        "X-API-Key": "{{readKey}}"
+      }
+    },
+    "response": {
+      "status": 200,
+      "headers": {
+        "content-type": "application/xml; charset=utf-8"
+      },
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<roster>\n  <section>IT3A</section>\n  <count>9</count>\n  <students>\n    <student>\n      <student_id>2024-00301</student_id>\n      <first_name>Sofia</first_name>\n      <last_name>Dela Cruz</last_name>\n      <course>BSIT</course>\n      <year_level>3</year_level>\n      <section>IT3A</section>\n      <status>Active</status>\n      <created_at>2026-10-24T02:35:02.569Z</created_at>\n      <updated_at>2026-10-24T02:35:02.569Z</updated_at>\n    </student>\n    <student>\n      <student_id>2024-00303</student_id>\n      <first_name>Ursula</first_name>\n      <last_name>Fernandez</last_name>\n      <course>BSIT</course>\n      <year_level>3</year_level>\n      <section>IT3A</section>\n      <status>Active</status>\n      <created_at>2026-10-24T02:35:02.569Z</created_at>\n      <updated_at>2026-10-24T02:35:02.569Z</updated_at>\n    </student>\n    <student>\n      <student_id>2024-00302</student_id>\n      <first_name>Tomas</first_name>\n      <last_name>Garcia</last_name>\n      <course>BSIT</course>\n      <year_level>3</year_level>\n      <section>IT3A</section>\n      <status>Active</status>\n      <created_at>2026-10-24T02:35:02.569Z</created_at>\n      <updated_at>2026-10-24T02:35:02.569Z</updated_at>\n    </student>\n    <student>\n      <student_id>2024-00306</student_id>\n      <first_name>Xavier</first_name>\n      <last_name>Lopez</last_name>\n      <course>BSIT</course>\n      <year_level>3</year_level>\n      <section>IT3A</section>\n      <status>Active</status>\n      <created_at>2026-10-24T02:35:02.570Z</created_at>\n      <updated_at>2026-10-24T02:35:02.570Z</updated_at>\n    </student>\n    <student>\n      <student_id>2024-00308</student_id>\n      <first_name>Zack</first_name>\n      <last_name>Manalo</last_name>\n      <course>BSIT</course>\n      <year_level>3</year_level>\n      <section>IT3A</section>\n      <status>Active</status>\n      <created_at>2026-10-24T02:35:02.570Z</created_at>\n      <updated_at>2026-10-24T02:35:02.570Z</updated_at>\n    </student>\n    <student>\n      <student_id>2024-00305</student_id>\n      <first_name>Wendy</first_name>\n      <last_name>Morales</last_name>\n      <course>BSIT</course>\n      <year_level>3</year_level>\n      <section>IT3A</section>\n      <status>Active</status>\n      <created_at>2026-10-24T02:35:02.569Z</created_at>\n      <updated_at>2026-10-24T02:35:02.569Z</updated_at>\n    </student>\n    <student>\n      <student_id>2024-00309</student_id>\n      <first_name>Ana Maria</first_name>\n      <last_name>O&apos;Reilly</last_name>\n      <course>BSIT</course>\n      <year_level>3</year_level>\n      <section>IT3A</section>\n      <status>Active</status>\n      <created_at>2026-10-24T02:35:02.570Z</created_at>\n      <updated_at>2026-10-24T02:35:02.570Z</updated_at>\n    </student>\n    <student>\n      <student_id>2024-00304</student_id>\n      <first_name>Victor</first_name>\n      <last_name>Pascual</last_name>\n      <course>BSIT</course>\n      <year_level>3</year_level>\n      <section>IT3A</section>\n      <status>Active</status>\n      <created_at>2026-10-24T02:35:02.569Z</created_at>\n      <updated_at>2026-10-24T02:35:02.569Z</updated_at>\n    </student>\n    <student>\n      <student_id>2024-00307</student_id>\n      <first_name>Yna</first_name>\n      <last_name>Rivera</last_name>\n      <course>BSIT</course>\n      <year_level>3</year_level>\n      <section>IT3A</section>\n      <status>Active</status>\n      <created_at>2026-10-24T02:35:02.570Z</created_at>\n      <updated_at>2026-10-24T02:35:02.570Z</updated_at>\n    </student>\n  </students>\n</roster>\n"
+    }
+  },
+  {
+    "name": "roster_not_found",
+    "title": "Section roster - 404 unknown section",
+    "folder": "Sections",
+    "request": {
+      "method": "GET",
+      "path": "/api/v1/sections/ZZ9Z/students",
+      "headers": {
+        "X-API-Key": "{{readKey}}"
+      }
+    },
+    "response": {
+      "status": 404,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "error": {
+          "code": "SECTION_NOT_FOUND",
+          "message": "No students found in section ZZ9Z"
+        }
+      }
+    }
+  },
+  {
+    "name": "roster_invalid_status",
+    "title": "Section roster - 422 invalid status",
+    "folder": "Sections",
+    "request": {
+      "method": "GET",
+      "path": "/api/v1/sections/IT1A/students?status=Dropped",
+      "headers": {
+        "X-API-Key": "{{readKey}}"
+      }
+    },
+    "response": {
+      "status": 422,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "message": "The request has invalid or missing fields",
+          "details": {
+            "fields": [
+              {
+                "field": "status",
+                "message": "Invalid option: expected one of \"Active\"|\"Inactive\"|\"Graduated\""
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "name": "create_student",
+    "title": "Create student",
+    "folder": "Admin: create, update, delete",
+    "request": {
+      "method": "POST",
+      "path": "/api/v1/students",
+      "headers": {
+        "X-API-Key": "{{adminKey}}",
+        "Content-Type": "application/json"
+      },
+      "body": "{\n  \"student_id\": \"2026-00999\",\n  \"first_name\": \"Demo\",\n  \"last_name\": \"Student\",\n  \"course\": \"BSIT\",\n  \"year_level\": 1,\n  \"section\": \"IT1A\",\n  \"status\": \"Active\"\n}"
+    },
+    "response": {
+      "status": 201,
+      "headers": {
+        "content-type": "application/json",
+        "location": "/api/v1/students/2026-00999"
+      },
+      "body": {
+        "student_id": "2026-00999",
+        "first_name": "Demo",
+        "last_name": "Student",
+        "course": "BSIT",
+        "year_level": 1,
+        "section": "IT1A",
+        "status": "Active",
+        "created_at": "2026-10-24T02:35:02.580Z",
+        "updated_at": "2026-10-24T02:35:02.580Z"
+      }
+    }
+  },
+  {
+    "name": "create_student_duplicate",
+    "title": "Create student - 409 duplicate",
+    "folder": "Admin: create, update, delete",
+    "request": {
+      "method": "POST",
+      "path": "/api/v1/students",
+      "headers": {
+        "X-API-Key": "{{adminKey}}",
+        "Content-Type": "application/json"
+      },
+      "body": "{\n  \"student_id\": \"2026-00999\",\n  \"first_name\": \"Demo\",\n  \"last_name\": \"Student\",\n  \"course\": \"BSIT\",\n  \"year_level\": 1,\n  \"section\": \"IT1A\",\n  \"status\": \"Active\"\n}"
+    },
+    "response": {
+      "status": 409,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "error": {
+          "code": "STUDENT_EXISTS",
+          "message": "Student 2026-00999 already exists",
+          "details": {
+            "student_id": "2026-00999"
+          }
+        }
+      }
+    }
+  },
+  {
+    "name": "create_student_read_key",
+    "title": "Create student - 403 read key",
+    "folder": "Auth errors",
+    "request": {
+      "method": "POST",
+      "path": "/api/v1/students",
+      "headers": {
+        "X-API-Key": "{{readKey}}",
+        "Content-Type": "application/json"
+      },
+      "body": "{\n  \"student_id\": \"2026-00999\",\n  \"first_name\": \"Demo\",\n  \"last_name\": \"Student\",\n  \"course\": \"BSIT\",\n  \"year_level\": 1,\n  \"section\": \"IT1A\",\n  \"status\": \"Active\"\n}"
+    },
+    "response": {
+      "status": 403,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "error": {
+          "code": "FORBIDDEN",
+          "message": "This endpoint requires the admin API key"
+        }
+      }
+    }
+  },
+  {
+    "name": "create_student_invalid",
+    "title": "Create student - 422 validation",
+    "folder": "Admin: create, update, delete",
+    "request": {
+      "method": "POST",
+      "path": "/api/v1/students",
+      "headers": {
+        "X-API-Key": "{{adminKey}}",
+        "Content-Type": "application/json"
+      },
+      "body": "{\n  \"student_id\": \"26-999\",\n  \"first_name\": \"Demo\",\n  \"last_name\": \"\",\n  \"course\": \"BSIT\",\n  \"year_level\": 7,\n  \"section\": \"IT1A\"\n}"
+    },
+    "response": {
+      "status": 422,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "message": "The request has invalid or missing fields",
+          "details": {
+            "fields": [
+              {
+                "field": "student_id",
+                "message": "must look like YYYY-NNNNN, e.g. 2026-00123"
+              },
+              {
+                "field": "last_name",
+                "message": "must not be empty"
+              },
+              {
+                "field": "year_level",
+                "message": "must be 1 to 5"
+              },
+              {
+                "field": "status",
+                "message": "Invalid option: expected one of \"Active\"|\"Inactive\"|\"Graduated\""
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "name": "create_student_wrong_content_type",
+    "title": "Create student - 415 wrong content type",
+    "folder": "Admin: create, update, delete",
+    "request": {
+      "method": "POST",
+      "path": "/api/v1/students",
+      "headers": {
+        "X-API-Key": "{{adminKey}}",
+        "Content-Type": "text/plain"
+      },
+      "body": "{\"student_id\":\"2026-00999\",\"first_name\":\"Demo\",\"last_name\":\"Student\",\"course\":\"BSIT\",\"year_level\":1,\"section\":\"IT1A\",\"status\":\"Active\"}"
+    },
+    "response": {
+      "status": 415,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "error": {
+          "code": "UNSUPPORTED_MEDIA_TYPE",
+          "message": "Content-Type must be application/json"
+        }
+      }
+    }
+  },
+  {
+    "name": "create_student_malformed_json",
+    "title": "Create student - 400 malformed JSON",
+    "folder": "Admin: create, update, delete",
+    "request": {
+      "method": "POST",
+      "path": "/api/v1/students",
+      "headers": {
+        "X-API-Key": "{{adminKey}}",
+        "Content-Type": "application/json"
+      },
+      "body": "{\"student_id\": \"2026-00999\", \"first_name\": "
+    },
+    "response": {
+      "status": 400,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "error": {
+          "code": "MALFORMED_JSON",
+          "message": "The request body is not valid JSON"
+        }
+      }
+    }
+  },
+  {
+    "name": "update_student",
+    "title": "Update student (full replace)",
+    "folder": "Admin: create, update, delete",
+    "request": {
+      "method": "PUT",
+      "path": "/api/v1/students/2026-00999",
+      "headers": {
+        "X-API-Key": "{{adminKey}}",
+        "Content-Type": "application/json"
+      },
+      "body": "{\n  \"first_name\": \"Demo\",\n  \"last_name\": \"Student\",\n  \"course\": \"BSIT\",\n  \"year_level\": 2,\n  \"section\": \"IT2B\",\n  \"status\": \"Inactive\"\n}"
+    },
+    "response": {
+      "status": 200,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "student_id": "2026-00999",
+        "first_name": "Demo",
+        "last_name": "Student",
+        "course": "BSIT",
+        "year_level": 2,
+        "section": "IT2B",
+        "status": "Inactive",
+        "created_at": "2026-10-24T02:35:02.580Z",
+        "updated_at": "2026-10-24T02:35:02.583Z"
+      }
+    }
+  },
+  {
+    "name": "update_student_id_mismatch",
+    "title": "Update student - 422 student_id mismatch",
+    "folder": "Admin: create, update, delete",
+    "request": {
+      "method": "PUT",
+      "path": "/api/v1/students/2026-00999",
+      "headers": {
+        "X-API-Key": "{{adminKey}}",
+        "Content-Type": "application/json"
+      },
+      "body": "{\n  \"first_name\": \"Demo\",\n  \"last_name\": \"Student\",\n  \"course\": \"BSIT\",\n  \"year_level\": 2,\n  \"section\": \"IT2B\",\n  \"status\": \"Inactive\",\n  \"student_id\": \"2026-00998\"\n}"
+    },
+    "response": {
+      "status": 422,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "message": "The request has invalid or missing fields",
+          "details": {
+            "fields": [
+              {
+                "field": "student_id",
+                "message": "must match the student_id in the URL (it cannot be changed)"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "name": "update_student_not_found",
+    "title": "Update student - 404 not found",
+    "folder": "Admin: create, update, delete",
+    "request": {
+      "method": "PUT",
+      "path": "/api/v1/students/2026-99999",
+      "headers": {
+        "X-API-Key": "{{adminKey}}",
+        "Content-Type": "application/json"
+      },
+      "body": "{\n  \"first_name\": \"Demo\",\n  \"last_name\": \"Student\",\n  \"course\": \"BSIT\",\n  \"year_level\": 2,\n  \"section\": \"IT2B\",\n  \"status\": \"Inactive\"\n}"
+    },
+    "response": {
+      "status": 404,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "error": {
+          "code": "STUDENT_NOT_FOUND",
+          "message": "No student with id 2026-99999"
+        }
+      }
+    }
+  },
+  {
+    "name": "delete_student",
+    "title": "Delete student",
+    "folder": "Admin: create, update, delete",
+    "request": {
+      "method": "DELETE",
+      "path": "/api/v1/students/2026-00999",
+      "headers": {
+        "X-API-Key": "{{adminKey}}"
+      }
+    },
+    "response": {
+      "status": 204,
+      "headers": {},
+      "body": null
+    }
+  },
+  {
+    "name": "delete_student_not_found",
+    "title": "Delete student - 404 not found",
+    "folder": "Admin: create, update, delete",
+    "request": {
+      "method": "DELETE",
+      "path": "/api/v1/students/2026-00999",
+      "headers": {
+        "X-API-Key": "{{adminKey}}"
+      }
+    },
+    "response": {
+      "status": 404,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "error": {
+          "code": "STUDENT_NOT_FOUND",
+          "message": "No student with id 2026-00999"
+        }
+      }
+    }
+  },
+  {
+    "name": "route_not_found",
+    "title": "Unknown route - 404",
+    "folder": "Auth errors",
+    "request": {
+      "method": "GET",
+      "path": "/api/v1/teachers",
+      "headers": {
+        "X-API-Key": "{{readKey}}"
+      }
+    },
+    "response": {
+      "status": 404,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "error": {
+          "code": "NOT_FOUND",
+          "message": "No route for GET /api/v1/teachers"
+        }
+      }
+    }
+  },
+  {
+    "name": "rate_limited",
+    "title": "Get student - 429 rate limited",
+    "folder": "Students",
+    "request": {
+      "method": "GET",
+      "path": "/api/v1/students/2024-00309",
+      "headers": {
+        "X-API-Key": "{{readKey}}"
+      }
+    },
+    "response": {
+      "status": 429,
+      "headers": {
+        "content-type": "application/json",
+        "retry-after": "60"
+      },
+      "body": {
+        "error": {
+          "code": "RATE_LIMITED",
+          "message": "Too many requests: the limit is 60 per minute",
+          "details": {
+            "retry_after_seconds": 60
+          }
+        }
+      }
+    }
+  },
+  {
+    "name": "internal_error",
+    "title": "Get student - 500 database unavailable",
+    "folder": "Students",
+    "request": {
+      "method": "GET",
+      "path": "/api/v1/students/2024-00309",
+      "headers": {
+        "X-API-Key": "{{readKey}}"
+      }
+    },
+    "response": {
+      "status": 500,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "error": {
+          "code": "INTERNAL_ERROR",
+          "message": "An unexpected error occurred. Quote the request id when reporting it.",
+          "details": {
+            "request_id": "31d1125f-fc5c-47c2-a898-21b78a8ba327"
+          }
+        }
+      }
+    }
+  }
+]
