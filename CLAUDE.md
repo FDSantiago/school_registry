@@ -56,6 +56,18 @@ Seed data: about 40 clearly fictional students across 4-5 sections. No real pers
 - One structured JSON log line per request: method, path, status, ms, request id.
 - In-memory rate limit: 60 requests/minute per key.
 
+## Decisions (agreed with the user)
+
+- Section lookup ignores case (`it3a` = `IT3A`); sections are stored and returned in uppercase.
+- A malformed `student_id` in the URL is just a 404 (it cannot exist); in a request body it is a 422.
+- `?status=` with no matches in an existing section: 200 with `count: 0`. 404 only if the section has no students at all.
+- `?format=` (json|xml) beats the `Accept` header. Errors are always JSON, even when XML was requested.
+- POST/PUT bodies are strict: unknown fields are a 422. PUT may include `student_id` only if it equals the URL's.
+- Order of checks: 401/403, then 429, then 415, 400, 422, then 404/409.
+- Rate limit is a fixed 1-minute window per key (one key per role). `/health` and requests with no valid key are not counted.
+- Error codes: MALFORMED_JSON, UNAUTHORIZED, FORBIDDEN, NOT_FOUND, STUDENT_NOT_FOUND, SECTION_NOT_FOUND,
+  STUDENT_EXISTS, UNSUPPORTED_MEDIA_TYPE, VALIDATION_ERROR, RATE_LIMITED, INTERNAL_ERROR.
+
 ## Rules
 
 - Small steps. Run the type-check and the tests after every step and fix problems before moving on.

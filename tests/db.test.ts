@@ -87,9 +87,9 @@ describe("listStudentsBySection", () => {
     expect(list.map((s) => s.last_name)).toEqual(["Abad", "Mora", "Zamora"]);
   });
 
-  it("filters by status", async () => {
-    const list = await listStudentsBySection(sql, "IT3A", "Inactive");
-    expect(list.map((s) => s.student_id)).toEqual(["2026-00002"]);
+  it("ignores the case of the section name", async () => {
+    const list = await listStudentsBySection(sql, "it3a");
+    expect(list.map((s) => s.student_id)).toEqual(["2026-00002", "2026-00003", "2026-00001"]);
   });
 
   it("returns an empty list for a section with no students", async () => {

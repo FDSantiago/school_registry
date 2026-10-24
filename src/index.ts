@@ -10,7 +10,7 @@ const sql = connect(config.databaseUrl);
 const applied = await runMigrations(sql);
 if (applied.length > 0) console.log(JSON.stringify({ level: "info", msg: "migrations applied", migrations: applied }));
 
-const app = createApp();
+const app = createApp({ db: sql, config });
 
 const server = Bun.serve({ port: config.port, fetch: app.fetch });
 console.log(JSON.stringify({ level: "info", msg: "server started", port: server.port }));

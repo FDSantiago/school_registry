@@ -51,21 +51,11 @@ export async function getStudent(sql: Db, studentId: string): Promise<Student | 
 }
 
 // Students in one section, sorted by last name, first name, then student_id.
-export async function listStudentsBySection(
-  sql: Db,
-  section: string,
-  status?: StudentStatus,
-): Promise<Student[]> {
-  let rows: StudentRow[];
-  if (status) {
-    rows = await sql`
-      SELECT * FROM students WHERE section = ${section} AND status = ${status}
-      ORDER BY last_name, first_name, student_id`;
-  } else {
-    rows = await sql`
-      SELECT * FROM students WHERE section = ${section}
-      ORDER BY last_name, first_name, student_id`;
-  }
+// The comparison ignores case (MySQL's default collation), so "it3a" finds "IT3A".
+export async function listStudentsBySection(sql: Db, section: string): Promise<Student[]> {
+  const rows: StudentRow[] = await sql`
+    SELECT * FROM students WHERE section = ${section}
+    ORDER BY last_name, first_name, student_id`;
   return rows.map(toStudent);
 }
 
